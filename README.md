@@ -1,6 +1,6 @@
 # boxes.kak
 
-[`boxes`](http://boxes.thomasjensen.com/) integration for the [Kakoune]http://kakoune.org/) editor. 
+[`boxes`](http://boxes.thomasjensen.com/) integration for the [Kakoune](http://kakoune.org/) editor. 
 As such, this plugin requires `boxes` to be installed.
 
 
