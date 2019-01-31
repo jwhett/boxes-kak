@@ -1,3 +1,10 @@
+# Fail if boxes is unavailable
+evaluate-commands %sh{
+    [ -z $(command -v boxes) ] && echo "fail Missing dependency: boxes"
+}
+
+# Define a map of filetype -> boxcomments for default boxing
+# behavior. If undefined, we fall back on boxes' default.
 declare-option str-to-str-map typeMap
 set -add global typeMap c=c
 set -add global typeMap h=c
@@ -13,26 +20,24 @@ set -add global typeMap vim=vim-cmt
 
 define-command -override -params .. -docstring "box [<arguments>]: wrap selection using the boxes command line utility" box %{
     evaluate-commands %sh{
-        echo "echo -debug $kak_opt_typeMap"
         for pair in $kak_opt_typeMap; do
+            # The map is handed to us as 'key=value' so we need to
+            # trim the single-quotes.
             key=$(echo "$pair" | cut -d= -f1 | tr -d "'")
             value=$(echo "$pair" | cut -d= -f2 | tr -d "'")
             if [ "$key" = "$kak_opt_filetype" ]; then
                 box_flag="-d $value"
-                echo "echo -debug boxflag: $box_flag"
-            else
-                echo "echo -debug No match for $kak_opt_filetype"
             fi
         done
 
+        # Prepend our default. This is overridden if the user defines
+        # a box type.
         COMMAND=$(echo "execute-keys |boxes<space>$(echo $box_flag $@ | sed 's/ /\<space\>/g')<ret>")
-
-        echo "echo -debug $COMMAND"
         echo $COMMAND 
     }
 }
 
 define-command -override -params .. -docstring "unbox [<arguments>]: unwrap selection using the boxes command line utility" unbox %{
-    # inverse
+    # Inverse; relies on boxes' default "unboxing" behavior.
     box -r %arg{@}
 }
